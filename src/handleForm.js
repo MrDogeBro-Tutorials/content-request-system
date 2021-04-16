@@ -1,6 +1,3 @@
-// number of rows to initally query for data
-let numRowsToGet = 500;
-
 const getGotoPage = (topic, headers, form, sheet) => {
   // setup vars
   let topics = [];
@@ -11,7 +8,7 @@ const getGotoPage = (topic, headers, form, sheet) => {
   // get the topics
   let rawTopics = sheet
     .getSheetByName('Requests')
-    .getSheetValues(3, 2, numRowsToGet, 1);
+    .getSheetValues(3, 2, config.numRowsToGet, 1);
 
   // add valid topics to var
   for (let i = 0; i < rawTopics.length; i++)
@@ -173,15 +170,13 @@ const updateForm = () => {
   let headers = [];
 
   // get the documents
-  let form = FormApp.openById('1FdCZoGIPqK3Spds_8lvoantMKYyHngV_hkmDmcrd8xE');
-  let sheet = SpreadsheetApp.openById(
-    '1g5dUkwKWKp4h3_VJbPdB2GyuyTXxwFX5-sNb_YxZ42E'
-  );
+  let form = FormApp.openById(config.formId);
+  let sheet = SpreadsheetApp.openById(config.sheetId);
 
   // get the topics
   let rawTopics = sheet
     .getSheetByName('Series')
-    .getSheetValues(3, 2, numRowsToGet, 1);
+    .getSheetValues(3, 2, config.numRowsToGet, 1);
 
   // add valid topics to var
   for (let i = 0; i < rawTopics.length; i++)
@@ -222,4 +217,3 @@ const updateForm = () => {
   // automatically remove old series sections
   pruneSections(form, topics, accepting_requests, headers);
 };
-
