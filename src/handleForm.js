@@ -67,7 +67,7 @@ const updateSeriesList = (
 
   // add series accepting requests to var
   for (let i = 0; i < topics.length; i++)
-    if (accepting_requests[i] === 'Yes')
+    if (accepting_requests[i].toLowerCase() === 'yes')
       choices.push(
         q.createChoice(topics[i], getGotoPage(topics[i], headers, form, sheet))
       );
@@ -89,7 +89,7 @@ const pruneSections = (form, topics, accepting_requests, headers) => {
     for (let t = 0; t < topics.length; t++)
       if (
         headers[i].getTitle().endsWith(topics[t]) &&
-        accepting_requests[t] === 'Yes'
+        accepting_requests[t].toLowerCase() === 'yes'
       ) {
         topicInUse = true;
         break;
@@ -108,7 +108,7 @@ const pruneSections = (form, topics, accepting_requests, headers) => {
       verifyQs.push(questions[i]);
 
   for (let i = 0; i < topics.length; i++)
-    if (accepting_requests[i] === 'Yes') numAccepting += 1;
+    if (accepting_requests[i].toLowerCase() === 'yes') numAccepting += 1;
 
   // remove extra verify questions
   for (let i = 0; i < verifyQs.length; i++) {
