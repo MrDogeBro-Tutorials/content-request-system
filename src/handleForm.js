@@ -163,8 +163,6 @@ const getGotoPage = (topic, headers, form, sheet) => {
       // update the section description and return it
       let h = headers[i].asPageBreakItem();
 
-      console.log(requestsList);
-      console.log(requestsList.length);
       if (requestsList.length > 0)
         h.setHelpText(
           'Below is a list of already requested videos for this series. Check if your request is already on the list. \n\n' +
@@ -194,11 +192,17 @@ const getGotoPage = (topic, headers, form, sheet) => {
   // set info for section
   section
     .setTitle(`Series Request: ${topic}`)
-    .setHelpText(
+    .setGoToPage(FormApp.PageNavigationType.SUBMIT);
+
+  if (requestsList.length > 0)
+    section.setHelpText(
       'Below is a list of already requested videos for this series. Check if your request is already on the list. \n\n' +
         requestsList.join('\n')
-    )
-    .setGoToPage(FormApp.PageNavigationType.SUBMIT);
+    );
+  else
+    section.setHelpText(
+      'There are currently no requested videos for this series. You can be the first to add one!'
+    );
 
   // add question to section to verify request is not a duplicate
   let verifyQ = form.addMultipleChoiceItem();
