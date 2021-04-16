@@ -1,0 +1,18 @@
+{
+  "name": "content-request",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MrDogeBro-Tutorials/content-request-system.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MrDogeBro-Tutorials/content-request-system/issues"
+  },
+  "homepage": "https://github.com/MrDogeBro-Tutorials/content-request-system#readme",
+  "dependencies": {}
+}
