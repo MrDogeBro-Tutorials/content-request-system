@@ -14,5 +14,7 @@
     "url": "https://github.com/MrDogeBro-Tutorials/content-request-system/issues"
   },
   "homepage": "https://github.com/MrDogeBro-Tutorials/content-request-system#readme",
-  "dependencies": {}
+  "dependencies": {
+    "@types/google-apps-script": "^1.0.31"
+  }
 }
