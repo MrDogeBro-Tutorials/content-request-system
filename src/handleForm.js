@@ -1,3 +1,132 @@
+const updateForm = () => {
+  // setup vars
+  let topics = [];
+  let accepting_requests = [];
+  let headers = [];
+
+  // get the documents
+  let form = FormApp.openById(config.formId);
+  let sheet = SpreadsheetApp.openById(config.sheetId);
+
+  // get the topics
+  let rawTopics = sheet
+    .getSheetByName('Series')
+    .getSheetValues(3, 2, config.numRowsToGet, 1);
+
+  // add valid topics to var
+  for (let i = 0; i < rawTopics.length; i++)
+    if (rawTopics[i][0].length > 0) topics.push(rawTopics[i][0]);
+
+  // get the series requests statuses
+  let rawRequests = sheet
+    .getSheetByName('Series')
+    .getSheetValues(3, 8, topics.length, 1);
+
+  // add valid request status to var
+  for (let i = 0; i < rawRequests.length; i++)
+    accepting_requests.push(rawRequests[i][0]);
+
+  // stop script from running mid change
+  if (topics.length !== accepting_requests.length) return;
+
+  // get the form questions
+  let questions = form.getItems();
+
+  for (let i = 0; i < questions.length; i++)
+    if (questions[i].getTitle().includes('Series Request'))
+      headers.push(questions[i]);
+
+  // update questions
+  for (let i = 0; i < questions.length; i++)
+    if (questions[i].getTitle() === 'What series is this request for?')
+      // update list of series available
+      updateSeriesList(
+        questions[i],
+        topics,
+        accepting_requests,
+        headers,
+        form,
+        sheet
+      );
+
+  // automatically remove old series sections
+  pruneSections(form, topics, accepting_requests, headers);
+};
+
+const updateSeriesList = (
+  question,
+  topics,
+  accepting_requests,
+  headers,
+  form,
+  sheet
+) => {
+  // setup vars
+  let q = question.asMultipleChoiceItem();
+  let choices = [];
+
+  // add series accepting requests to var
+  for (let i = 0; i < topics.length; i++)
+    if (accepting_requests[i] === 'Yes')
+      choices.push(
+        q.createChoice(topics[i], getGotoPage(topics[i], headers, form, sheet))
+      );
+
+  // set options to accepting series
+  q.setChoices(choices);
+};
+
+const pruneSections = (form, topics, accepting_requests, headers) => {
+  // setup vars
+  let verifyQs = [];
+  let numAccepting = 0;
+
+  // go through section headers
+  for (let i = 0; i < headers.length; i++) {
+    let topicInUse = false;
+
+    // set topic in use if series is accepting requests
+    for (let t = 0; t < topics.length; t++)
+      if (
+        headers[i].getTitle().endsWith(topics[t]) &&
+        accepting_requests[t] === 'Yes'
+      ) {
+        topicInUse = true;
+        break;
+      }
+
+    // remove section header if not in use
+    if (!topicInUse) form.deleteItem(headers[i]);
+  }
+
+  // get the form questions
+  let questions = form.getItems();
+
+  // only get verify questions
+  for (let i = 0; i < questions.length; i++)
+    if (questions[i].getTitle() === 'Verify question duplicate status.')
+      verifyQs.push(questions[i]);
+
+  for (let i = 0; i < topics.length; i++)
+    if (accepting_requests[i] === 'Yes') numAccepting += 1;
+
+  // remove extra verify questions
+  for (let i = 0; i < verifyQs.length; i++) {
+    // reverse go through questions until the number of topics
+    // equals the number of verify questions
+    let revI = verifyQs.length - i;
+    if (revI === numAccepting) return;
+
+    // get verify question and remove choices
+    let toRem = verifyQs[revI - 1];
+    let toRemChoice = toRem.asMultipleChoiceItem();
+    toRemChoice.setChoices[toRemChoice.createChoice('')];
+
+    // remove verify question
+    form.deleteItem(toRem);
+  }
+};
+
 const getGotoPage = (topic, headers, form, sheet) => {
   // setup vars
   let topics = [];
@@ -87,133 +216,4 @@ const getGotoPage = (topic, headers, form, sheet) => {
     .setRequired(true);
 
   return section;
-};
-
-const updateSeriesList = (
-  question,
-  topics,
-  accepting_requests,
-  headers,
-  form,
-  sheet
-) => {
-  // setup vars
-  let q = question.asMultipleChoiceItem();
-  let choices = [];
-
-  // add series accepting requests to var
-  for (let i = 0; i < topics.length; i++)
-    if (accepting_requests[i] === 'Yes')
-      choices.push(
-        q.createChoice(topics[i], getGotoPage(topics[i], headers, form, sheet))
-      );
-
-  // set options to accepting series
-  q.setChoices(choices);
-};
-
-const pruneSections = (form, topics, accepting_requests, headers) => {
-  // setup vars
-  let verifyQs = [];
-  let numAccepting = 0;
-
-  // go through section headers
-  for (let i = 0; i < headers.length; i++) {
-    let topicInUse = false;
-
-    // set topic in use if series is accepting requests
-    for (let t = 0; t < topics.length; t++)
-      if (
-        headers[i].getTitle().endsWith(topics[t]) &&
-        accepting_requests[t] === 'Yes'
-      ) {
-        topicInUse = true;
-        break;
-      }
-
-    // remove section header if not in use
-    if (!topicInUse) form.deleteItem(headers[i]);
-  }
-
-  // get the form questions
-  let questions = form.getItems();
-
-  // only get verify questions
-  for (let i = 0; i < questions.length; i++)
-    if (questions[i].getTitle() === 'Verify question duplicate status.')
-      verifyQs.push(questions[i]);
-
-  for (let i = 0; i < topics.length; i++)
-    if (accepting_requests[i] === 'Yes') numAccepting += 1;
-
-  // remove extra verify questions
-  for (let i = 0; i < verifyQs.length; i++) {
-    // reverse go through questions until the number of topics
-    // equals the number of verify questions
-    let revI = verifyQs.length - i;
-    if (revI === numAccepting) return;
-
-    // get verify question and remove choices
-    let toRem = verifyQs[revI - 1];
-    let toRemChoice = toRem.asMultipleChoiceItem();
-    toRemChoice.setChoices[toRemChoice.createChoice('')];
-
-    // remove verify question
-    form.deleteItem(toRem);
-  }
-};
-
-const updateForm = () => {
-  // setup vars
-  let topics = [];
-  let accepting_requests = [];
-  let headers = [];
-
-  // get the documents
-  let form = FormApp.openById(config.formId);
-  let sheet = SpreadsheetApp.openById(config.sheetId);
-
-  // get the topics
-  let rawTopics = sheet
-    .getSheetByName('Series')
-    .getSheetValues(3, 2, config.numRowsToGet, 1);
-
-  // add valid topics to var
-  for (let i = 0; i < rawTopics.length; i++)
-    if (rawTopics[i][0].length > 0) topics.push(rawTopics[i][0]);
-
-  // get the series requests statuses
-  let rawRequests = sheet
-    .getSheetByName('Series')
-    .getSheetValues(3, 8, topics.length, 1);
-
-  // add valid request status to var
-  for (let i = 0; i < rawRequests.length; i++)
-    accepting_requests.push(rawRequests[i][0]);
-
-  // stop script from running mid change
-  if (topics.length !== accepting_requests.length) return;
-
-  // get the form questions
-  let questions = form.getItems();
-
-  for (let i = 0; i < questions.length; i++)
-    if (questions[i].getTitle().includes('Series Request'))
-      headers.push(questions[i]);
-
-  // update questions
-  for (let i = 0; i < questions.length; i++)
-    if (questions[i].getTitle() === 'What series is this request for?')
-      // update list of series available
-      updateSeriesList(
-        questions[i],
-        topics,
-        accepting_requests,
-        headers,
-        form,
-        sheet
-      );
-
-  // automatically remove old series sections
-  pruneSections(form, topics, accepting_requests, headers);
 };
