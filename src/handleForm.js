@@ -1,23 +1,26 @@
 // number of rows to initally query for data
 let numRowsToGet = 500;
 
-
 const getGotoPage = (topic, headers, form, sheet) => {
   // setup vars
-  let topics = []
-  let series = []
-  let requestsList = []
+  let topics = [];
+  let series = [];
+  let requestsList = [];
   let requestPage;
 
   // get the topics
-  let rawTopics = sheet.getSheetByName('Requests').getSheetValues(3, 2, numRowsToGet, 1);
+  let rawTopics = sheet
+    .getSheetByName('Requests')
+    .getSheetValues(3, 2, numRowsToGet, 1);
 
   // add valid topics to var
   for (let i = 0; i < rawTopics.length; i++)
     if (rawTopics[i][0].length > 0) topics.push(rawTopics[i][0]);
 
   // get the series
-  let rawSeries = sheet.getSheetByName('Requests').getSheetValues(3, 3, topics.length, 1);
+  let rawSeries = sheet
+    .getSheetByName('Requests')
+    .getSheetValues(3, 3, topics.length, 1);
 
   // add valid series to var
   for (let i = 0; i < rawSeries.length; i++) series.push(rawSeries[i][0]);
@@ -26,7 +29,7 @@ const getGotoPage = (topic, headers, form, sheet) => {
   for (let i = 0; i < topics.length; i++)
     if (series[i] === topic)
       // add requests for series to list
-      requestsList.push(topics[i])
+      requestsList.push(topics[i]);
 
   // get and update section for series
   for (let i = 0; i < headers.length; i++)
@@ -34,12 +37,17 @@ const getGotoPage = (topic, headers, form, sheet) => {
       // update the section description and return it
       let h = headers[i].asPageBreakItem();
 
-      console.log(requestsList)
-      console.log(requestsList.length)
+      console.log(requestsList);
+      console.log(requestsList.length);
       if (requestsList.length > 0)
-        h.setHelpText('Below is a list of already requested videos for this series. Check if your request is already on the list. \n\n' + requestsList.join('\n'))
+        h.setHelpText(
+          'Below is a list of already requested videos for this series. Check if your request is already on the list. \n\n' +
+            requestsList.join('\n')
+        );
       else
-        h.setHelpText('There are currently no requested videos for this series. You can be the first to add one!')
+        h.setHelpText(
+          'There are currently no requested videos for this series. You can be the first to add one!'
+        );
 
       return h;
     }
@@ -51,47 +59,61 @@ const getGotoPage = (topic, headers, form, sheet) => {
   for (let i = 0; i < questions.length; i++)
     if (questions[i].getTitle() === 'Request') {
       requestPage = questions[i].asPageBreakItem();
-      break
+      break;
     }
 
   // create new section for series
   let section = form.addPageBreakItem();
 
   // set info for section
-  section.setTitle(`Series Request: ${topic}`)
-    .setHelpText('Below is a list of already requested videos for this series. Check if your request is already on the list. \n\n' + requestsList.join('\n'))
-    .setGoToPage(FormApp.PageNavigationType.SUBMIT)
+  section
+    .setTitle(`Series Request: ${topic}`)
+    .setHelpText(
+      'Below is a list of already requested videos for this series. Check if your request is already on the list. \n\n' +
+        requestsList.join('\n')
+    )
+    .setGoToPage(FormApp.PageNavigationType.SUBMIT);
 
   // add question to section to verify request is not a duplicate
   let verifyQ = form.addMultipleChoiceItem();
 
   // set info for verify question
-  verifyQ.setTitle('Verify question duplicate status.')
+  verifyQ
+    .setTitle('Verify question duplicate status.')
     .setChoices([
       verifyQ.createChoice('My question is not a duplicate.', requestPage),
-      verifyQ.createChoice('My question is a duplicate.', FormApp.PageNavigationType.RESTART)
+      verifyQ.createChoice(
+        'My question is a duplicate.',
+        FormApp.PageNavigationType.RESTART
+      ),
     ])
     .setRequired(true);
 
   return section;
-}
+};
 
-
-const updateSeriesList = (question, topics, accepting_requests, headers, form, sheet) => {
+const updateSeriesList = (
+  question,
+  topics,
+  accepting_requests,
+  headers,
+  form,
+  sheet
+) => {
   // setup vars
   let q = question.asMultipleChoiceItem();
   let choices = [];
 
   // add series accepting requests to var
   for (let i = 0; i < topics.length; i++)
-    if (accepting_requests[i] === 'Yes') choices.push(
+    if (accepting_requests[i] === 'Yes')
+      choices.push(
         q.createChoice(topics[i], getGotoPage(topics[i], headers, form, sheet))
       );
-  
+
   // set options to accepting series
   q.setChoices(choices);
-}
-
+};
 
 const pruneSections = (form, topics, accepting_requests, headers) => {
   // setup vars
@@ -104,11 +126,14 @@ const pruneSections = (form, topics, accepting_requests, headers) => {
 
     // set topic in use if series is accepting requests
     for (let t = 0; t < topics.length; t++)
-      if (headers[i].getTitle().endsWith(topics[t]) && accepting_requests[t] === 'Yes') {
-        topicInUse = true
-        break
+      if (
+        headers[i].getTitle().endsWith(topics[t]) &&
+        accepting_requests[t] === 'Yes'
+      ) {
+        topicInUse = true;
+        break;
       }
-    
+
     // remove section header if not in use
     if (!topicInUse) form.deleteItem(headers[i]);
   }
@@ -120,10 +145,10 @@ const pruneSections = (form, topics, accepting_requests, headers) => {
   for (let i = 0; i < questions.length; i++)
     if (questions[i].getTitle() === 'Verify question duplicate status.')
       verifyQs.push(questions[i]);
-  
+
   for (let i = 0; i < topics.length; i++)
     if (accepting_requests[i] === 'Yes') numAccepting += 1;
-  
+
   // remove extra verify questions
   for (let i = 0; i < verifyQs.length; i++) {
     // reverse go through questions until the number of topics
@@ -139,35 +164,41 @@ const pruneSections = (form, topics, accepting_requests, headers) => {
     // remove verify question
     form.deleteItem(toRem);
   }
-}
-
+};
 
 const updateForm = () => {
   // setup vars
-  let topics = []
+  let topics = [];
   let accepting_requests = [];
   let headers = [];
 
   // get the documents
   let form = FormApp.openById('1FdCZoGIPqK3Spds_8lvoantMKYyHngV_hkmDmcrd8xE');
-  let sheet = SpreadsheetApp.openById('1g5dUkwKWKp4h3_VJbPdB2GyuyTXxwFX5-sNb_YxZ42E');
+  let sheet = SpreadsheetApp.openById(
+    '1g5dUkwKWKp4h3_VJbPdB2GyuyTXxwFX5-sNb_YxZ42E'
+  );
 
   // get the topics
-  let rawTopics = sheet.getSheetByName('Series').getSheetValues(3, 2, numRowsToGet, 1);
+  let rawTopics = sheet
+    .getSheetByName('Series')
+    .getSheetValues(3, 2, numRowsToGet, 1);
 
   // add valid topics to var
   for (let i = 0; i < rawTopics.length; i++)
     if (rawTopics[i][0].length > 0) topics.push(rawTopics[i][0]);
 
   // get the series requests statuses
-  let rawRequests = sheet.getSheetByName('Series').getSheetValues(3, 8, topics.length, 1);
+  let rawRequests = sheet
+    .getSheetByName('Series')
+    .getSheetValues(3, 8, topics.length, 1);
 
   // add valid request status to var
-  for (let i = 0; i < rawRequests.length; i++) accepting_requests.push(rawRequests[i][0]);
+  for (let i = 0; i < rawRequests.length; i++)
+    accepting_requests.push(rawRequests[i][0]);
 
   // stop script from running mid change
   if (topics.length !== accepting_requests.length) return;
-  
+
   // get the form questions
   let questions = form.getItems();
 
@@ -179,8 +210,16 @@ const updateForm = () => {
   for (let i = 0; i < questions.length; i++)
     if (questions[i].getTitle() === 'What series is this request for?')
       // update list of series available
-      updateSeriesList(questions[i], topics, accepting_requests, headers, form, sheet);
+      updateSeriesList(
+        questions[i],
+        topics,
+        accepting_requests,
+        headers,
+        form,
+        sheet
+      );
 
-  // automatically remove old series sections 
-  pruneSections(form, topics, accepting_requests, headers)
-}
+  // automatically remove old series sections
+  pruneSections(form, topics, accepting_requests, headers);
+};
+
