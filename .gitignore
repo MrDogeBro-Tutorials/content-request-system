@@ -1,6 +1,9 @@
 ### Google CLI ###
 .clasp.json
 
+### Config Files ###
+config.js
+
 ### Node ###
 # Logs
 logs
