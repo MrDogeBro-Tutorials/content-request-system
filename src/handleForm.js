@@ -10,7 +10,7 @@ const updateForm = () => {
 
   // get the topics
   let rawTopics = sheet
-    .getSheetByName('Series')
+    .getSheetByName(config.topicSheet)
     .getSheetValues(3, 2, config.numRowsToGet, 1);
 
   // add valid topics to var
@@ -19,7 +19,7 @@ const updateForm = () => {
 
   // get the series requests statuses
   let rawRequests = sheet
-    .getSheetByName('Series')
+    .getSheetByName(config.topicSheet)
     .getSheetValues(3, 8, topics.length, 1);
 
   // add valid request status to var
@@ -136,7 +136,7 @@ const getGotoPage = (topic, headers, form, sheet) => {
 
   // get the topics
   let rawTopics = sheet
-    .getSheetByName('Requests')
+    .getSheetByName(config.requestSheet)
     .getSheetValues(3, 2, config.numRowsToGet, 1);
 
   // add valid topics to var
@@ -145,7 +145,7 @@ const getGotoPage = (topic, headers, form, sheet) => {
 
   // get the series
   let rawSeries = sheet
-    .getSheetByName('Requests')
+    .getSheetByName(config.requestSheet)
     .getSheetValues(3, 3, topics.length, 1);
 
   // add valid series to var
