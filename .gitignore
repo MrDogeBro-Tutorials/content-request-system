@@ -1,5 +1,11 @@
 ### Google CLI ###
 .clasp.json
+.clasprc.json
+
+# Claps creds
+creds.json
+credentials.json
+client_id.json
 
 ### Config Files ###
 config.js
