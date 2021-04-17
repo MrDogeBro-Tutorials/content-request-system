@@ -12,4 +12,6 @@ const config = {
   sheetId: 'example-id', // the id of the sheet to read data from
   formId: 'example-id', // the id of the form to update/modify
   numRowsToGet: 500, // the number of rows to initally query for data
+  topicSheet: 'Series', // the sheet where the topics are stored
+  requestSheet: 'Requests', // the sheet where the requests are stored
 };
