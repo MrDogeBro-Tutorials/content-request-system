@@ -14,4 +14,9 @@ const config = {
   numRowsToGet: 500, // the number of rows to initally query for data
   topicSheet: 'Series', // the sheet where the topics are stored
   requestSheet: 'Requests', // the sheet where the requests are stored
+  startRow: 3, // the row where data to retrieve starts
+  topicColumn: 2, // the column where the topic is in the topic sheet
+  topicStatusColumn: 8, // the column where the status of accepting requests is for a topic
+  requestColumn: 2, // the column where the request topic is in the requests sheet
+  requestSeriesColumn: 3, // the column where the corresponding series is for a request
 };
