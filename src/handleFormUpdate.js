@@ -11,7 +11,12 @@ const updateForm = () => {
   // get the topics
   let rawTopics = sheet
     .getSheetByName(config.topicSheet)
-    .getSheetValues(3, 2, config.numRowsToGet, 1);
+    .getSheetValues(
+      config.startRow,
+      config.topicColumn,
+      config.numRowsToGet,
+      1
+    );
 
   // add valid topics to var
   for (let i = 0; i < rawTopics.length; i++)
@@ -20,7 +25,12 @@ const updateForm = () => {
   // get the series requests statuses
   let rawRequests = sheet
     .getSheetByName(config.topicSheet)
-    .getSheetValues(3, 8, topics.length, 1);
+    .getSheetValues(
+      config.startRow,
+      config.topicStatusColumn,
+      topics.length,
+      1
+    );
 
   // add valid request status to var
   for (let i = 0; i < rawRequests.length; i++)
@@ -137,7 +147,12 @@ const getGotoPage = (topic, headers, form, sheet) => {
   // get the topics
   let rawTopics = sheet
     .getSheetByName(config.requestSheet)
-    .getSheetValues(3, 2, config.numRowsToGet, 1);
+    .getSheetValues(
+      config.startRow,
+      config.requestColumn,
+      config.numRowsToGet,
+      1
+    );
 
   // add valid topics to var
   for (let i = 0; i < rawTopics.length; i++)
@@ -146,7 +161,12 @@ const getGotoPage = (topic, headers, form, sheet) => {
   // get the series
   let rawSeries = sheet
     .getSheetByName(config.requestSheet)
-    .getSheetValues(3, 3, topics.length, 1);
+    .getSheetValues(
+      config.startRow,
+      config.requestSeriesColumn,
+      topics.length,
+      1
+    );
 
   // add valid series to var
   for (let i = 0; i < rawSeries.length; i++) series.push(rawSeries[i][0]);
