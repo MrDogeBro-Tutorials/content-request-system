@@ -164,7 +164,7 @@ const getGotoPage = (topic, headers, form, sheet) => {
     .getSheetValues(
       config.startRow,
       config.requestSeriesColumn,
-      topics.length,
+      topics.length || 1,
       1
     );
 
