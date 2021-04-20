@@ -99,7 +99,7 @@ const pruneSections = (form, topics, accepting_requests, headers) => {
   // only get verify questions
   questions.forEach((q) => {
     q.getTitle() === 'Verify question duplicate status.'
-      ? verifyQs.push(questions[i])
+      ? verifyQs.push(q)
       : null;
   });
 
@@ -122,11 +122,12 @@ const pruneSections = (form, topics, accepting_requests, headers) => {
 
 const getGotoPage = (topic, headers, form, sheet) => {
   // setup vars
+  let topics = [];
   let requestsList = [];
   let requestPage;
 
   // get the topics
-  let topics = sheet
+  sheet
     .getSheetByName(config.requestSheet)
     .getSheetValues(
       config.startRow,
@@ -148,8 +149,8 @@ const getGotoPage = (topic, headers, form, sheet) => {
     .map((cell) => cell[0]);
 
   // get requests for selected series
-  series.forEach((s) => {
-    series[i] === topic
+  series.forEach((s, i) => {
+    s === topic
       ? // add requests for series to list
         requestsList.push(topics[i])
       : null;
