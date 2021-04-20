@@ -1,27 +1,19 @@
 const pushFormData = () => {
-  let series = [];
-  let topics = [];
-  let descriptions = [];
-
   let sheet = SpreadsheetApp.openById(config.responseSheetId);
 
-  let rawSeries = sheet
+  let series = [];
+  sheet
     .getSheetByName(config.responseSheet)
-    .getSheetValues(2, config.responseSeriesColumn, config.numRowsToGet, 1);
+    .getSheetValues(2, config.responseSeriesColumn, config.numRowsToGet, 1)
+    .forEach((cell) => (cell[0].length > 0 ? series.push(cell[0]) : null));
 
-  for (let i = 0; i < rawSeries.length; i++)
-    if (rawSeries[i][0].length > 0) series.push(rawSeries[0][i]);
-
-  let rawTopics = sheet
+  let topics = sheet
     .getSheetByName(config.responseSheet)
-    .getSheetValues(2, config.responseTopicColumn, series.length, 1);
+    .getSheetValues(2, config.responseTopicColumn, series.length, 1)
+    .map((cell) => cell[0]);
 
-  for (let i = 0; i < rawTopics.length; i++) topics.push(rawTopics[i][0]);
-
-  let rawDescriptions = sheet
+  let descriptions = sheet
     .getSheetByName(config.responseSheet)
-    .getSheetValues(2, config.responseDescriptionColumn, series.length, 1);
-
-  for (let i = 0; i < rawDescriptions.length; i++)
-    descriptions.push(rawTopics[i][0]);
+    .getSheetValues(2, config.responseDescriptionColumn, series.length, 1)
+    .map((cell) => cell[0]);
 };
