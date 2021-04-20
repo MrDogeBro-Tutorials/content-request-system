@@ -1,7 +1,9 @@
 const pushFormData = () => {
+  // setup vars
+  let series = [];
+
   let sheet = SpreadsheetApp.openById(config.responseSheetId);
 
-  let series = [];
   sheet
     .getSheetByName(config.responseSheet)
     .getSheetValues(2, config.responseSeriesColumn, config.numRowsToGet, 1)
